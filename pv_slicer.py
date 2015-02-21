@@ -27,7 +27,7 @@ from pvextractor import pv_slicer
 
 class PVSlicingTool(PathTool):
 
-    def on_end(self):
+    def on_finish(self):
 
         # Extract vertices from path
         x, y = self.path
@@ -78,3 +78,6 @@ class PVSlicingTool(PathTool):
 
         # Also update slice
         self.widget.set_slice(int(z))
+
+
+tool_registry.add(PVSlicingTool, widget_cls=ImageWidget)
