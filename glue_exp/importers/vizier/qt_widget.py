@@ -25,11 +25,18 @@ class QtVizierImporter(QtGui.QDialog):
         self.ok.clicked.connect(self.finalize)
         self.search_button.clicked.connect(self.search)
 
+        self._checkboxes = {}
+
+    def clear(self):
+        self._checkboxes.clear()
+        self.tree.clear()
+
     def search(self):
+
+        self.clear()
 
         results = query_vizier(self.query.text())
 
-        self._checkboxes = {}
         for catalog_set in results:
             main = QtGui.QTreeWidgetItem(self.tree.invisibleRootItem(),
                                          [catalog_set['description'], ""])
