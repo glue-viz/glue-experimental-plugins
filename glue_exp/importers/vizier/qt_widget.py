@@ -45,6 +45,8 @@ class QtVizierImporter(QtGui.QDialog):
         for catalog_set in results:
             main = QtGui.QTreeWidgetItem(self.tree.invisibleRootItem(),
                                          [catalog_set['description'], ""])
+            main.setFlags(main.flags() | Qt.ItemIsTristate)
+            main.setCheckState(2, Qt.Unchecked)
             for catalog in catalog_set['tables']:
                 sub = QtGui.QTreeWidgetItem(main)
                 sub.setFlags(sub.flags() | Qt.ItemIsUserCheckable)
