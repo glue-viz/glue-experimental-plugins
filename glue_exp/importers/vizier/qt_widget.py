@@ -26,12 +26,17 @@ class QtVizierImporter(QtGui.QDialog):
         self.search_button.clicked.connect(self.search)
 
         self._checkboxes = {}
+        self.datasets = []
 
     def clear(self):
         self._checkboxes.clear()
         self.tree.clear()
 
     def search(self):
+
+        self.search_button.setEnabled(False)
+        self.search_button.setText("Searching")
+        QtGui.qApp.processEvents()
 
         self.clear()
 
@@ -52,6 +57,10 @@ class QtVizierImporter(QtGui.QDialog):
         self.tree.resizeColumnToContents(0)
         self.tree.resizeColumnToContents(1)
         self.tree.resizeColumnToContents(2)
+
+        self.search_button.setEnabled(True)
+        self.search_button.setText("Search")
+
 
     def finalize(self):
 
