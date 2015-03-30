@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>VizieR Importer</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
@@ -29,7 +29,7 @@
         </font>
        </property>
        <property name="text">
-        <string>VizieR Catalog Browser</string>
+        <string>Import from the VizieR Service</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

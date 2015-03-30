@@ -23,6 +23,12 @@ class QtVizierImporter(QtGui.QDialog):
         self.ok.clicked.connect(self.finalize)
         self.search_button.clicked.connect(self.search)
 
+        # Focus on anything other than query line otherwise the placeholder
+        # text disappears straight away.
+        self.search_button.setFocus()
+
+        self.query.setPlaceholderText("Enter a search term here to search for authors, titles, descriptions, etc.")
+
         self._checkboxes = {}
         self.datasets = []
 
