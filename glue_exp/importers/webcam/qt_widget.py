@@ -1,23 +1,19 @@
-# This plugin requires OpenCV to be installed, and returns a PIL Image object
-
 import os
-import sys
 
 import cv2
 from PIL import Image
 
-from PyQt4.QtCore import QTimer, QRect
-from PyQt4.QtGui import QDialog, QApplication, QPainter, QWidget, QImage
-from PyQt4.uic import loadUi
+from glue.external.qt import QtGui, QtCore
+from glue.qt.qtutil import load_ui
 
 
 UI_FILE = os.path.join(os.path.dirname(__file__), 'webcam.ui')
 
-class WebcamView(QWidget):
+class WebcamView(QtGui.QWidget):
 
     def __init__(self, parent=None):
 
-        super(QWidget, self).__init__()
+        super(WebcamView, self).__init__()
 
         self._frozen = False
 
@@ -25,7 +21,7 @@ class WebcamView(QWidget):
 
         self._update_image()
 
-        self._timer = QTimer(self)
+        self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self._update_image)
         self._timer.start(100)
 
@@ -63,8 +59,8 @@ class WebcamView(QWidget):
             width = wi_dx
             height = wi_dx / float(im_ratio)
 
-        painter = QPainter(self)
-        painter.drawImage(QRect(xmin, ymin, width, height), self._image)
+        painter = QtGui.QPainter(self)
+        painter.drawImage(QtCore.QRect(xmin, ymin, width, height), self._image)
 
     def _init_webcam(self):
         self._capture = cv2.VideoCapture(0)
@@ -75,7 +71,7 @@ class WebcamView(QWidget):
 
     def _get_qimage(self):
         frame = self._get_frame()
-        image = QImage(frame.tostring(), frame.shape[1], frame.shape[0], QImage.Format_RGB888).rgbSwapped()
+        image = QtGui.QImage(frame.tostring(), frame.shape[1], frame.shape[0], QtGui.QImage.Format_RGB888).rgbSwapped()
         return image, frame
 
     def _update_image(self):
@@ -84,12 +80,12 @@ class WebcamView(QWidget):
             self.update()
 
 
-class WebcamImporter(QDialog):
+class QtWebcamImporter(QtGui.QDialog):
 
     def __init__(self):
-        super(WebcamImporter, self).__init__()
+        super(QtWebcamImporter, self).__init__()
         self.pil_image = None
-        self.ui = loadUi(UI_FILE, self)
+        self.ui = load_ui(UI_FILE, self)
         self._webcam_preview = WebcamView()
         self.image.addWidget(self._webcam_preview)
         self.capture.clicked.connect(self.flip_capture_button)
@@ -97,6 +93,7 @@ class WebcamImporter(QDialog):
         self.ok.clicked.connect(self.finalize)
         self.ok.setEnabled(False)
         self.capture.setDefault(True)
+        self.image_data = None
 
     def flip_capture_button(self):
         if self._webcam_preview._frozen:
@@ -111,15 +108,6 @@ class WebcamImporter(QDialog):
             self.ok.setEnabled(True)
             self.ok.setDefault(True)
 
-
     def finalize(self):
-        self.pil_image = Image.fromarray(self._webcam_preview._frame[:,:,::-1])
+        self.image_data = self._webcam_preview._frame[:,:,::-1]
         self.accept()
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)  # Create an application object
-    wi = WebcamImporter()
-    wi.show()
-    app.exec_()
-    wi.pil_image.save('test.png')
