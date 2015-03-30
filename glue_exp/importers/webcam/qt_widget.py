@@ -1,13 +1,12 @@
 import os
 
-import cv2
-from PIL import Image
-
 from glue.external.qt import QtGui, QtCore
 from glue.qt.qtutil import load_ui
 
+from .webcam_helpers import Webcam, frame_to_data
 
 UI_FILE = os.path.join(os.path.dirname(__file__), 'webcam.ui')
+
 
 class WebcamView(QtGui.QWidget):
 
@@ -17,14 +16,13 @@ class WebcamView(QtGui.QWidget):
 
         self._frozen = False
 
-        self._init_webcam()
+        self._webcam = Webcam()
 
         self._update_image()
 
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self._update_image)
         self._timer.start(100)
-
 
     def freeze(self):
         self._frozen = True
@@ -62,21 +60,12 @@ class WebcamView(QtGui.QWidget):
         painter = QtGui.QPainter(self)
         painter.drawImage(QtCore.QRect(xmin, ymin, width, height), self._image)
 
-    def _init_webcam(self):
-        self._capture = cv2.VideoCapture(0)
-
-    def _get_frame(self):
-        ret, frame = self._capture.read()
-        return frame
-
-    def _get_qimage(self):
-        frame = self._get_frame()
-        image = QtGui.QImage(frame.tostring(), frame.shape[1], frame.shape[0], QtGui.QImage.Format_RGB888).rgbSwapped()
-        return image, frame
 
     def _update_image(self):
         if not self._frozen:
-            self._image, self._frame = self._get_qimage()
+            frame = self._webcam.capture_frame()
+            self._image = QtGui.QImage(frame.tostring(), frame.shape[1], frame.shape[0], QtGui.QImage.Format_RGB888).rgbSwapped()
+            self._data = frame_to_data(frame)
             self.update()
 
 
@@ -93,7 +82,7 @@ class QtWebcamImporter(QtGui.QDialog):
         self.ok.clicked.connect(self.finalize)
         self.ok.setEnabled(False)
         self.capture.setDefault(True)
-        self.image_data = None
+        self.data = []
 
     def flip_capture_button(self):
         if self._webcam_preview._frozen:
@@ -109,5 +98,5 @@ class QtWebcamImporter(QtGui.QDialog):
             self.ok.setDefault(True)
 
     def finalize(self):
-        self.image_data = self._webcam_preview._frame[:,:,::-1]
+        self.data = [self._webcam_preview._data]
         self.accept()
