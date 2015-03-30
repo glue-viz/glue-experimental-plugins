@@ -2,9 +2,7 @@ import os
 
 from glue.external.qt import QtGui
 from glue.external.qt.QtCore import Qt
-
-# TODO: update to use glue.qt once load_ui has been generalized
-from PyQt4.uic import loadUi
+from glue.qt.qtutil import load_ui
 
 from .vizier_helpers import query_vizier, fetch_vizier_catalog
 
@@ -19,7 +17,7 @@ class QtVizierImporter(QtGui.QDialog):
 
         super(QtVizierImporter, self).__init__()
 
-        self.ui = loadUi(UI_MAIN, self)
+        self.ui = load_ui(UI_MAIN, self)
 
         self.cancel.clicked.connect(self.reject)
         self.ok.clicked.connect(self.finalize)
