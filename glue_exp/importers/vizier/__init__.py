@@ -9,3 +9,5 @@ def setup():
         wi.exec_()
         return wi.datasets
 
+    from glue.logger import logger
+    logger.info("Loaded VizieR importer plugin")
