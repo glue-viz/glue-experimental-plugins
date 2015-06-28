@@ -1,5 +1,4 @@
-# glue-experimental-tools
-Experimental externally-defined tools for glue to explore how we can improve the API for creating custom tools
+# Experimental plugins for glue
 
 Once this package is installed, experimental plugins can be registered by
 giving the path to the plug-ins as e.g.
