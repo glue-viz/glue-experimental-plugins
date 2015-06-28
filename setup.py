@@ -8,6 +8,11 @@ import os
 import sys
 import subprocess
 
+entry_points = """
+[glue.plugins]
+webcam_importer=glue_exp.importers.webcam:setup
+vizier_importer=glue_exp.importers.vizier:setup
+"""
 
 setup(name='glue_exp',
       version="0.1.dev0",
@@ -26,5 +31,6 @@ setup(name='glue_exp',
           'License :: OSI Approved :: BSD License'
           ],
       packages = find_packages(),
-      package_data={'': ['*.ui']}
+      package_data={'': ['*.ui']},
+      entry_points=entry_points
     )
