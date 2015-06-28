@@ -5,6 +5,13 @@ from glue.qt.tests.test_mouse_mode import TestMouseMode, Event
 
 from ..contour_selection import ContourMode, contour_to_roi
 
+try:
+    from glue.utils.matplotlib import point_contour
+except ImportError:  # glue < 0.5
+    point_contour_path = 'glue.core.util.point_contour'
+else:
+    point_contour_path = 'glue.utils.matplotlib.point_contour'
+
 
 class TestContourMode(TestMouseMode):
 
@@ -28,14 +35,14 @@ class TestContourMode(TestMouseMode):
 class TestContourToRoi(object):
 
     def test_roi(self):
-        with patch('glue.utils.matplotlib.point_contour') as point_contour:
+        with patch(point_contour_path) as point_contour:
             point_contour.return_value = np.array([[1, 2], [2, 3]])
             p = contour_to_roi(1, 2, None)
             np.testing.assert_array_almost_equal(p.vx, [1, 2])
             np.testing.assert_array_almost_equal(p.vy, [2, 3])
 
     def test_roi_null_result(self):
-        with patch('glue.utils.matplotlib.point_contour') as point_contour:
+        with patch(point_contour_path) as point_contour:
             point_contour.return_value = None
             p = contour_to_roi(1, 2, None)
             assert p is None
