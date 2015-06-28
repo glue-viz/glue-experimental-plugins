@@ -3,7 +3,11 @@ import os
 from glue.qt.mouse_mode import MouseMode
 from glue.core import roi
 from glue.external.qt import QtGui
-from glue.utils.matplotlib import point_contour
+
+try:
+    from glue.utils.matplotlib import point_contour
+except ImportError:  # glue < 0.5
+    from glue.core.util import point_contour
 
 __all__ = ['ContourSelectionTool']
 
