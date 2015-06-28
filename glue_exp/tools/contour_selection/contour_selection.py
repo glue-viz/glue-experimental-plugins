@@ -5,12 +5,14 @@ from glue.core import roi
 from glue.external.qt import QtGui
 from glue.utils.matplotlib import point_contour
 
+__all__ = ['ContourSelectionTool']
+
 ROOT = os.path.dirname(__file__)
 
 WARN_THRESH = 10000000  # warn when contouring large images
 
 
-class ContourTool(object):
+class ContourSelectionTool(object):
 
     def __init__(self, widget=None):
         self.widget = widget

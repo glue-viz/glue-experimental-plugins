@@ -12,6 +12,7 @@ entry_points = """
 [glue.plugins]
 webcam_importer=glue_exp.importers.webcam:setup
 vizier_importer=glue_exp.importers.vizier:setup
+contour_selection=glue_exp.tools.contour_selection:setup
 """
 
 setup(name='glue_exp',
