@@ -31,6 +31,6 @@ setup(name='glue_exp',
           'License :: OSI Approved :: BSD License'
           ],
       packages = find_packages(),
-      package_data={'': ['*.ui']},
+      package_data={'': ['*.ui'], '': ['*.png']},
       entry_points=entry_points
     )

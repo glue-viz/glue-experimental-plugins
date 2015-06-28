@@ -1,11 +1,42 @@
 import os
 
 from glue.qt.mouse_mode import MouseMode
-from glue.qt.qtutil import get_icon
-from glue.core import util, roi
+from glue.core import roi
 from glue.external.qt import QtGui
+from glue.utils.matplotlib import point_contour
 
 ROOT = os.path.dirname(__file__)
+
+WARN_THRESH = 10000000  # warn when contouring large images
+
+
+class ContourTool(object):
+
+    def __init__(self, widget=None):
+        self.widget = widget
+
+    def _get_modes(self, axes):
+        self._path = ContourMode(axes, release_callback=self._contour_roi)
+        return [self._path]
+
+    # @set_cursor(Qt.WaitCursor)
+    def _contour_roi(self, mode):
+        """ Callback for ContourMode. Set edit_subset as new ROI """
+        im = self.widget.client.display_data
+        att = self.widget.client.display_attribute
+
+        if im is None or att is None:
+            return
+        if im.size > WARN_THRESH and not self._confirm_large_image(im):
+            return
+
+        roi = mode.roi(im[att])
+        if roi:
+            self.widget.apply_roi(roi)
+
+    def _display_data_hook(self, data):
+        pass
+
 
 class ContourMode(MouseMode):
     """
@@ -61,7 +92,7 @@ def contour_to_roi(x, y, data):
     if x is None or y is None:
         return None
 
-    xy = util.point_contour(x, y, data)
+    xy = point_contour(x, y, data)
     if xy is None:
         return None
 
