@@ -12,6 +12,7 @@ entry_points = """
 [glue.plugins]
 webcam_importer=glue_exp.importers.webcam:setup
 vizier_importer=glue_exp.importers.vizier:setup
+contour_selection=glue_exp.tools.contour_selection:setup
 """
 
 setup(name='glue_exp',
@@ -31,6 +32,6 @@ setup(name='glue_exp',
           'License :: OSI Approved :: BSD License'
           ],
       packages = find_packages(),
-      package_data={'': ['*.ui']},
+      package_data={'': ['*.ui'], '': ['*.png']},
       entry_points=entry_points
     )
