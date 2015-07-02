@@ -43,6 +43,9 @@ class ContourSelectionTool(object):
     def _display_data_hook(self, data):
         pass
 
+    def close(self):
+        pass
+
 
 class ContourMode(MouseMode):
     """
