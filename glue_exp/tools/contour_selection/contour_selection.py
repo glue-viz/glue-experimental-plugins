@@ -1,6 +1,6 @@
 import os
 
-from glue.qt.mouse_mode import MouseMode
+from glue.viewers.common.qt.mouse_mode import MouseMode
 from glue.core import roi
 from glue.external.qt import QtGui
 
