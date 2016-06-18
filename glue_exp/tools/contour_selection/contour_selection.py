@@ -33,7 +33,7 @@ class ContourSelectionTool(object):
 
         if im is None or att is None:
             return
-        if im.size > WARN_THRESH and not self._confirm_large_image(im):
+        if im.size > WARN_THRESH and not self.widget._confirm_large_image(im):
             return
 
         roi = mode.roi(im[att])
