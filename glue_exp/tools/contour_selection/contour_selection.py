@@ -1,6 +1,7 @@
 import os
+import numpy as np
 
-from glue.qt.mouse_mode import MouseMode
+from glue.viewers.common.qt.mouse_mode import MouseMode
 from glue.core import roi
 from glue.external.qt import QtGui
 
@@ -33,12 +34,30 @@ class ContourSelectionTool(object):
 
         if im is None or att is None:
             return
-        if im.size > WARN_THRESH and not self._confirm_large_image(im):
+        if im.size > WARN_THRESH and not self.widget._confirm_large_image(im):
             return
+        slc = self.widget.client.slice
 
-        roi = mode.roi(im[att])
+        # attribute is Primary,
+        data = np.take(im[att], slc[self.profile_axis], axis=self.profile_axis)
+
+        # when mouse pos of xy and axis status shown on left selection panel doesn't match
+        # TODO: this would be solved when switch axis labels and its value
+        if slc.index('x') < slc.index('y'):
+            data = data.transpose()
+
+        roi = mode.roi(data)
         if roi:
             self.widget.apply_roi(roi)
+
+    @property
+    def profile_axis(self):
+        # XXX make this settable
+        # defaults to the non-xy axis with the most channels
+        slc = self.widget.client.slice
+        candidates = [i for i, s in enumerate(slc) if s not in ['x', 'y']]
+
+        return max(candidates, key=lambda i: self.widget.client.display_data.shape[i])
 
     def _display_data_hook(self, data):
         pass
@@ -76,6 +95,8 @@ class ContourMode(MouseMode):
             A new ROI made by the (single) contour that passes through the
             mouse location (and `None` if this could not be calculated)
         """
+        # here the xy refers to the x and y related to the order of left panel
+
         x, y = self._event_xdata, self._event_ydata
         return contour_to_roi(x, y, data)
 
