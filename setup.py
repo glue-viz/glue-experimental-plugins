@@ -9,6 +9,7 @@ entry_points = """
 webcam_importer=glue_exp.importers.webcam:setup
 vizier_importer=glue_exp.importers.vizier:setup
 contour_selection=glue_exp.tools.contour_selection:setup
+floodfill_selection=glue_exp.tools.floodfill_selection:setup
 """
 
 setup(name='glue_exp',
