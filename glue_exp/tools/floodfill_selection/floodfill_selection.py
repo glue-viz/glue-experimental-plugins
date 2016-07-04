@@ -39,27 +39,40 @@ class FloodfillSelectionTool(object):
         dy = (mode._end_event.y - mode._start_event.y) / height
         length = np.hypot(dx, dy)
 
-        im = self.widget.client.display_data
-        self.data_object = im
+        data = self.widget.client.display_data
         att = self.widget.client.display_attribute
 
-        if im is None or att is None:
+        if data is None or att is None:
             return
-        if im.size > WARN_THRESH and not self.widget._confirm_large_image(im):
-            return
-        slc = self.widget.client.slice
 
-        x, y = mode._start_event.xdata, mode._start_event.ydata
-        floodfill_to_roi(x, y, im[att], slc[self.profile_axis], self.data_object, length)
+        if data.size > WARN_THRESH and not self.widget._confirm_large_image(data):
+            return
+
+        # Make sure the coordinates are converted to the nearest integer
+        x = int(round(mode._start_event.xdata))
+        y = int(round(mode._start_event.ydata))
+        z = int(round(self.widget.client.slice[self.profile_axis]))
+
+        values = np.asarray(data[att], dtype=float)
+
+        # We convert the length in relative figure units to a threshold - we make
+        # it so that moving by 0.1 produces a threshold of 1.1, 0.2 -> 2, 0.3 -> 11
+        # etc
+        threshold = 1 + 10 ** (length / 0.1 - 1)
+
+        # coordinate should be integers as index for array
+        mask = floodfill_scipy(values, (z, y, x), threshold)
+
+        if mask is not None:
+            cids = data.pixel_component_ids
+            subset_state = MaskSubsetState(mask, cids)
+            mode = EditSubsetMode()
+            mode.update(data, subset_state, focus_data=data)
 
     @property
     def profile_axis(self):
-        # XXX make this settable
-        # defaults to the non-xy axis with the most channels
         slc = self.widget.client.slice
-        # TODO: slice update function
         candidates = [i for i, s in enumerate(slc) if s not in ['x', 'y']]
-
         return max(candidates, key=lambda i: self.widget.client.display_data.shape[i])
 
     def _display_data_hook(self, data):
@@ -97,42 +110,3 @@ class FloodfillMode(MouseMode):
         super(FloodfillMode, self).release(event)
         self._start_event = None
         self._end_event = None
-
-
-def floodfill_to_roi(x, y, data, slc, data_object, length):
-    """
-    Return a PolygonalROI for the floodfill that passes through (x,y) in data
-
-    Parameters
-    ----------
-    x, y : float
-        x and y coordinate of the point
-    data : `numpy.ndarray`
-        The data
-
-    Returns
-    -------
-    :class:`~glue.core.roi.PolygonalROI`
-        A new ROI made by the (single) floodfill that passes through the
-        mouse location (and `None` if this could not be calculated)
-    """
-
-    if x is None or y is None:
-        return None
-
-    formate_data = np.asarray(data, np.float64)
-    z = slc
-
-    # We convert the length in relative figure units to a threshold - we make
-    # it so that moving by 0.1 produces a threshold of 1.1, 0.2 -> 2, 0.3 -> 11
-    # etc
-    threshold = 1 + 10 ** (length / 0.1 - 1)
-
-    # coordinate should be integers as index for array
-    mask = floodfill_scipy(formate_data, (z, int(round(y)), int(round(x))), threshold)
-
-    if mask is not None:
-        cids = data_object.pixel_component_ids
-        subset_state = MaskSubsetState(mask, cids)
-        mode = EditSubsetMode()
-        mode.update(data_object, subset_state, focus_data=data_object)
