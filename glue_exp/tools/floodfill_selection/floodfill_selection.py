@@ -23,21 +23,19 @@ class FloodfillSelectionTool(object):
         self.data_object = None
 
     def _get_modes(self, axes):
-        self._path = FloodfillMode(axes, move_callback=self._floodfill_roi, release_callback=self._floodfill_roi)
-        return [self._path]
+        self._mode = FloodfillMode(axes,
+                                   move_callback=self._floodfill_roi,
+                                   release_callback=self._floodfill_roi)
+        return [self._mode]
 
     # @set_cursor(Qt.WaitCursor)
     def _floodfill_roi(self, mode):
-        """ Callback for FloodfillMode. Set edit_subset as new ROI """
+        """
+        Callback for FloodfillMode.
+        """
 
         if mode._start_event is None or mode._end_event is None:
             return
-
-        # Determine length of drag
-        width, height = mode._start_event.canvas.get_width_height()
-        dx = (mode._end_event.x - mode._start_event.x) / width
-        dy = (mode._end_event.y - mode._start_event.y) / height
-        length = np.hypot(dx, dy)
 
         data = self.widget.client.display_data
         att = self.widget.client.display_attribute
@@ -48,12 +46,16 @@ class FloodfillSelectionTool(object):
         if data.size > WARN_THRESH and not self.widget._confirm_large_image(data):
             return
 
+        # Determine length of dragging action in units relative to the figure
+        width, height = mode._start_event.canvas.get_width_height()
+        dx = (mode._end_event.x - mode._start_event.x) / width
+        dy = (mode._end_event.y - mode._start_event.y) / height
+        length = np.hypot(dx, dy)
+
         # Make sure the coordinates are converted to the nearest integer
         x = int(round(mode._start_event.xdata))
         y = int(round(mode._start_event.ydata))
         z = int(round(self.widget.client.slice[self.profile_axis]))
-
-        values = np.asarray(data[att], dtype=float)
 
         # We convert the length in relative figure units to a threshold - we make
         # it so that moving by 0.1 produces a threshold of 1.1, 0.2 -> 2, 0.3 -> 11
@@ -61,6 +63,7 @@ class FloodfillSelectionTool(object):
         threshold = 1 + 10 ** (length / 0.1 - 1)
 
         # coordinate should be integers as index for array
+        values = np.asarray(data[att], dtype=float)
         mask = floodfill_scipy(values, (z, y, x), threshold)
 
         if mask is not None:
@@ -84,7 +87,8 @@ class FloodfillSelectionTool(object):
 
 class FloodfillMode(MouseMode):
     """
-    Creates ROIs by using the mouse to 'pick' floodfills out of the data
+    Creates selection by using the mouse to pick regions using the flood fill
+    algorithm: https://en.wikipedia.org/wiki/Flood_fill
     """
 
     def __init__(self, *args, **kwargs):
@@ -92,10 +96,12 @@ class FloodfillMode(MouseMode):
         super(FloodfillMode, self).__init__(*args, **kwargs)
 
         self.icon = QtGui.QIcon(os.path.join(ROOT, "glue_floodfill.png"))
-        self.mode_id = 'Floodfill'
-        self.action_text = 'Floodfill'
-        self.tool_tip = 'Define a region of interest with the flood fill algorithm'
-        self.shortcut = 'N'
+        self.mode_id = 'Flood fill'
+        self.action_text = 'Flood fill'
+        self.tool_tip = ('Define a region of interest with the flood fill '
+                         'algorithm. Click to define the starting pixel and '
+                         'drag (keeping the mouse clicked) to grow the '
+                         'selection.')
 
     def press(self, event):
         self._start_event = event
