@@ -49,9 +49,8 @@ class FloodfillSelectionTool(object):
             return
         slc = self.widget.client.slice
 
-        roi = mode.roi(im[att], slc[self.profile_axis], self.data_object, length)
-        if roi:
-            self.widget.apply_roi(roi)
+        x, y = mode._start_event.xdata, mode._start_event.ydata
+        floodfill_to_roi(x, y, im[att], slc[self.profile_axis], self.data_object, length)
 
     @property
     def profile_axis(self):
@@ -82,7 +81,7 @@ class FloodfillMode(MouseMode):
         self.icon = QtGui.QIcon(os.path.join(ROOT, "glue_floodfill.png"))
         self.mode_id = 'Floodfill'
         self.action_text = 'Floodfill'
-        self.tool_tip = 'Define a region of intrest via floodfills'
+        self.tool_tip = 'Define a region of interest with the flood fill algorithm'
         self.shortcut = 'N'
 
     def press(self, event):
@@ -98,25 +97,6 @@ class FloodfillMode(MouseMode):
         super(FloodfillMode, self).release(event)
         self._start_event = None
         self._end_event = None
-
-    def roi(self, data, slc, data_object, length):
-        """Caculate an ROI as the floodfill which passes through the mouse
-
-        Parameters
-        ----------
-        data : `numpy.ndarray`
-            The dataset to use
-
-        Returns
-        -------
-        :class:`~glue.core.roi.PolygonalROI` or `None`
-            A new ROI made by the (single) floodfill that passes through the
-            mouse location (and `None` if this could not be calculated)
-        """
-        # here the xy refers to the x and y related to the order of left panel
-        x, y = self._start_event.xdata, self._start_event.ydata
-        slc = slc
-        return floodfill_to_roi(x, y, data, slc, data_object, length)
 
 
 def floodfill_to_roi(x, y, data, slc, data_object, length):
@@ -146,7 +126,7 @@ def floodfill_to_roi(x, y, data, slc, data_object, length):
     # We convert the length in relative figure units to a threshold - we make
     # it so that moving by 0.1 produces a threshold of 1.1, 0.2 -> 2, 0.3 -> 11
     # etc
-    threshold = 1 + 10 ** (length / 0.1 - 2)
+    threshold = 1 + 10 ** (length / 0.1 - 1)
 
     # coordinate should be integers as index for array
     mask = floodfill_scipy(formate_data, (z, int(round(y)), int(round(x))), threshold)
