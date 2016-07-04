@@ -23,12 +23,22 @@ class FloodfillSelectionTool(object):
         self.data_object = None
 
     def _get_modes(self, axes):
-        self._path = FloodfillMode(axes, release_callback=self._floodfill_roi)
+        self._path = FloodfillMode(axes, move_callback=self._floodfill_roi, release_callback=self._floodfill_roi)
         return [self._path]
 
     # @set_cursor(Qt.WaitCursor)
     def _floodfill_roi(self, mode):
         """ Callback for FloodfillMode. Set edit_subset as new ROI """
+
+        if mode._start_event is None or mode._end_event is None:
+            return
+
+        # Determine length of drag
+        width, height = mode._start_event.canvas.get_width_height()
+        dx = (mode._end_event.x - mode._start_event.x) / width
+        dy = (mode._end_event.y - mode._start_event.y) / height
+        length = np.hypot(dx, dy)
+
         im = self.widget.client.display_data
         self.data_object = im
         att = self.widget.client.display_attribute
@@ -39,7 +49,7 @@ class FloodfillSelectionTool(object):
             return
         slc = self.widget.client.slice
 
-        roi = mode.roi(im[att], slc[self.profile_axis], self.data_object)
+        roi = mode.roi(im[att], slc[self.profile_axis], self.data_object, length)
         if roi:
             self.widget.apply_roi(roi)
 
@@ -75,7 +85,21 @@ class FloodfillMode(MouseMode):
         self.tool_tip = 'Define a region of intrest via floodfills'
         self.shortcut = 'N'
 
-    def roi(self, data, slc, data_object):
+    def press(self, event):
+        self._start_event = event
+        super(FloodfillMode, self).press(event)
+
+    def move(self, event):
+        self._end_event = event
+        super(FloodfillMode, self).move(event)
+
+    def release(self, event):
+        self._end_event = event
+        super(FloodfillMode, self).release(event)
+        self._start_event = None
+        self._end_event = None
+
+    def roi(self, data, slc, data_object, length):
         """Caculate an ROI as the floodfill which passes through the mouse
 
         Parameters
@@ -90,12 +114,12 @@ class FloodfillMode(MouseMode):
             mouse location (and `None` if this could not be calculated)
         """
         # here the xy refers to the x and y related to the order of left panel
-        x, y = self._event_xdata, self._event_ydata
+        x, y = self._start_event.xdata, self._start_event.ydata
         slc = slc
-        return floodfill_to_roi(x, y, data, slc, data_object)
+        return floodfill_to_roi(x, y, data, slc, data_object, length)
 
 
-def floodfill_to_roi(x, y, data, slc, data_object):
+def floodfill_to_roi(x, y, data, slc, data_object, length):
     """
     Return a PolygonalROI for the floodfill that passes through (x,y) in data
 
@@ -118,7 +142,11 @@ def floodfill_to_roi(x, y, data, slc, data_object):
 
     formate_data = np.asarray(data, np.float64)
     z = slc
-    threshold = 1.2
+
+    # We convert the length in relative figure units to a threshold - we make
+    # it so that moving by 0.1 produces a threshold of 1.1, 0.2 -> 2, 0.3 -> 11
+    # etc
+    threshold = 1 + 10 ** (length / 0.1 - 2)
 
     # coordinate should be integers as index for array
     mask = floodfill_scipy(formate_data, (z, int(round(y)), int(round(x))), threshold)
