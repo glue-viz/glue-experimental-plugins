@@ -35,8 +35,8 @@ class ContourSelectionTool(object):
             return
         if im.size > WARN_THRESH and not self._confirm_large_image(im):
             return
-
         roi = mode.roi(im[att])
+
         if roi:
             self.widget.apply_roi(roi)
 
