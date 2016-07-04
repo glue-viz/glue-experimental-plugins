@@ -102,6 +102,8 @@ class FloodfillMode(MouseMode):
                          'algorithm. Click to define the starting pixel and '
                          'drag (keeping the mouse clicked) to grow the '
                          'selection.')
+        self._start_event = None
+        self._end_event = None
 
     def press(self, event):
         self._start_event = event
