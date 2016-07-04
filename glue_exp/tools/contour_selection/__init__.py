@@ -2,7 +2,7 @@ def setup():
 
     from glue.logger import logger
     from glue.config import tool_registry
-    from glue.qt.widgets.image_widget import ImageWidget
+    from glue.viewers.image.qt import ImageWidget
 
     from .contour_selection import ContourSelectionTool
 

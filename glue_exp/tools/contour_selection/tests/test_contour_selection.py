@@ -1,7 +1,7 @@
 import numpy as np
 from mock import MagicMock, patch
 
-from glue.qt.tests.test_mouse_mode import TestMouseMode, Event
+from glue.viewers.common.qt.tests.test_mouse_mode import TestMouseMode, Event
 
 from ..contour_selection import ContourMode, contour_to_roi
 

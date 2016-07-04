@@ -28,6 +28,6 @@ setup(name='glue_exp',
           'License :: OSI Approved :: BSD License'
           ],
       packages = find_packages(),
-      package_data={'': ['*.ui'], '': ['*.png']},
+      package_data={'glue_exp.importers.vizier': ['*.ui'], 'glue_exp.importers.webcam':['*.ui'], '': ['*.png']},
       entry_points=entry_points
     )
