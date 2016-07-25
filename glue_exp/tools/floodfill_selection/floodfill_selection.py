@@ -13,7 +13,7 @@ __all__ = ['FloodfillSelectionTool']
 
 ROOT = os.path.dirname(__file__)
 
-WARN_THRESH = 10000000  # warn when floodfilling large images
+WARN_THRESH = 1000000000000  # warn when floodfilling large images
 
 
 class FloodfillSelectionTool(object):
@@ -55,7 +55,12 @@ class FloodfillSelectionTool(object):
         # Make sure the coordinates are converted to the nearest integer
         x = int(round(mode._start_event.xdata))
         y = int(round(mode._start_event.ydata))
-        z = int(round(self.widget.client.slice[self.profile_axis]))
+
+        if data.ndim == 2:
+            start_coord = (y, x)
+        else:
+            z = int(round(self.widget.client.slice[self.profile_axis]))
+            start_coord = (z, y, x)
 
         # We convert the length in relative figure units to a threshold - we make
         # it so that moving by 0.1 produces a threshold of 1.1, 0.2 -> 2, 0.3 -> 11
@@ -64,7 +69,7 @@ class FloodfillSelectionTool(object):
 
         # coordinate should be integers as index for array
         values = np.asarray(data[att], dtype=float)
-        mask = floodfill_scipy(values, (z, y, x), threshold)
+        mask = floodfill_scipy(values, start_coord, threshold)
 
         if mask is not None:
             cids = data.pixel_component_ids
@@ -76,7 +81,10 @@ class FloodfillSelectionTool(object):
     def profile_axis(self):
         slc = self.widget.client.slice
         candidates = [i for i, s in enumerate(slc) if s not in ['x', 'y']]
-        return max(candidates, key=lambda i: self.widget.client.display_data.shape[i])
+        if len(candidates) == 0:
+            return None
+        else:
+            return max(candidates, key=lambda i: self.widget.client.display_data.shape[i])
 
     def _display_data_hook(self, data):
         pass
