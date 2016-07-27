@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import numpy.ma as ma
 
 from glue.viewers.common.qt.mouse_mode import MouseMode
 from glue.external.qt import QtGui
@@ -34,15 +35,14 @@ class DendrogramSelectionTool(object):
         if mode._start_event is None or mode._end_event is None:
             return
 
-        # TODO: how to get data from other widges??
         data = self.widget.client.display_data
         att = self.widget.client.display_attribute
-        dendro_att = 'structure'
+        dendro_data = self.widget.client.data[0]  # TODO: check label=dendrogram 
 
-        print('data and att', data, att)
+        print('data and att', data, att, self.widget.client.data[0], self.widget.client.data[1])
 
         # assume I got the dendrogram structure here as d
-        d = data[dendro_att]  # here is ndarray data
+        d = dendro_data  # here is ndarray data
 
         if data is None or att is None:
             return
@@ -72,12 +72,34 @@ class DendrogramSelectionTool(object):
         threshold = 1 + 10 ** (length / 0.1 - 1)
 
         # get branch from pos
-        branch = d.structure_at(start_coord)
-        # TODO: this needs to be iterated
-        if threshold > 2:
-            branch = branch.parent
+        # data['structure'] is a mask of data with dendrogram labels for each part
+        try:
+            branch_label = data['structure'][start_coord]  # return branch label on cursor pos
+        except IndexError:
+            # if selection pos out of data range
+            branch_label = -1
 
-        mask = branch.get_mask()
+        if branch_label == -1:
+            return None
+
+        # TODO: add dragging distance into threshold
+        # if threshold > 2:
+        #     parent check of d
+        #     branch = d['parent'][branch]
+
+        print('branch_label', branch_label)
+
+        def get_all_branch(d, branch_label, mask):
+            print('d, branch_label, mask', d, branch_label, np.sum(mask))
+            if d['parent'][branch_label] == -1:
+                return mask
+            else:
+                or_mask = np.logical_or(mask, data['structure'] == d['parent'][branch_label])
+                return get_all_branch(d, d['parent'][branch_label], or_mask)
+
+        ini_mask = data['structure'] == branch_label
+        mask = get_all_branch(d, branch_label, ini_mask)
+
         if mask is not None:
             cids = data.pixel_component_ids
             subset_state = MaskSubsetState(mask, cids)
