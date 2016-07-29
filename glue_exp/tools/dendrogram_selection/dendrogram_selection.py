@@ -43,7 +43,13 @@ class DendrogramSelectionTool(object):
 
         data = self.widget.client.display_data
         att = self.widget.client.display_attribute
-        d = self.widget.client.data[0]  # dendrogram structure TODO: check label=dendrogram
+
+        for each_data in self.widget.client.data:
+            if each_data.label == 'Dendrogram':
+                d = each_data
+            else:
+                # TODO: the tool icon doesn't show
+                return
 
         if data is None or att is None:
             return
