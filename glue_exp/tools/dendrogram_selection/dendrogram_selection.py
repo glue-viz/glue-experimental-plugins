@@ -37,7 +37,7 @@ class DendrogramSelectionTool(object):
 
         data = self.widget.client.display_data
         att = self.widget.client.display_attribute
-        dendro_data = self.widget.client.data[0]  # TODO: check label=dendrogram 
+        dendro_data = self.widget.client.data[0]  # TODO: check label=dendrogram
 
         print('data and att', data, att, self.widget.client.data[0], self.widget.client.data[1])
 
@@ -71,8 +71,11 @@ class DendrogramSelectionTool(object):
         # etc
         threshold = 1 + 10 ** (length / 0.1 - 1)
 
-        # get branch from pos
-        # data['structure'] is a mask of data with dendrogram labels for each part
+        # data['structure'] is a mask of data for each pixel with dendrogram labels
+        # d['parent'] gives parent info of each branch
+        # -> d['parent'][2] = 5 means branch2 parent is branch 5
+        # -> d['parent'][5] = 7 means branch 5 parent is branch 7
+        # ...
         try:
             branch_label = data['structure'][start_coord]  # return branch label on cursor pos
         except IndexError:
@@ -87,17 +90,19 @@ class DendrogramSelectionTool(object):
         #     parent check of d
         #     branch = d['parent'][branch]
 
-        print('branch_label', branch_label)
-
-        def get_all_branch(d, branch_label, mask):
+        # similar to DFS to find children 
+        def get_all_branch(d, branch_label, ini_mask):
+            mask = np.logical_or(ini_mask, data['structure'] == branch_label)
             print('d, branch_label, mask', d, branch_label, np.sum(mask))
-            if d['parent'][branch_label] == -1:
-                return mask
-            else:
-                or_mask = np.logical_or(mask, data['structure'] == d['parent'][branch_label])
-                return get_all_branch(d, d['parent'][branch_label], or_mask)
+            child_label = np.where(d['parent'] == branch_label)
 
-        ini_mask = data['structure'] == branch_label
+            if len(child_label[0]) != 0:
+                for each_child in child_label[0]:
+                    mask = get_all_branch(d, each_child, mask)
+            return mask
+
+
+        ini_mask = np.zeros(data['structure'].shape, dtype=bool)
         mask = get_all_branch(d, branch_label, ini_mask)
 
         if mask is not None:
@@ -143,9 +148,10 @@ class DendrogramMode(MouseMode):
 
     def press(self, event):
         self._start_event = event
+        self._end_event = event # remove later
         super(DendrogramMode, self).press(event)
 
-    def move(self, event):
+    '''def move(self, event):
         self._end_event = event
         super(DendrogramMode, self).move(event)
 
@@ -153,4 +159,4 @@ class DendrogramMode(MouseMode):
         self._end_event = event
         super(DendrogramMode, self).release(event)
         self._start_event = None
-        self._end_event = None
+        self._end_event = None'''
