@@ -31,18 +31,19 @@ class DendrogramSelectionTool(object):
     def _dendrogram_roi(self, mode):
         """
         Callback for DendrogramMode.
+
+        # data['structure'] is a mask of data for each pixel with dendrogram labels
+        # d['parent'] gives parent info of each branch
+        # -> d['parent'][2] = 5 means branch2 parent is branch 5
+        # -> d['parent'][5] = 7 means branch 5 parent is branch 7
+        # ...
         """
         if mode._start_event is None or mode._end_event is None:
             return
 
         data = self.widget.client.display_data
         att = self.widget.client.display_attribute
-        dendro_data = self.widget.client.data[0]  # TODO: check label=dendrogram
-
-        print('data and att', data, att, self.widget.client.data[0], self.widget.client.data[1])
-
-        # assume I got the dendrogram structure here as d
-        d = dendro_data  # here is ndarray data
+        d = self.widget.client.data[0]  # dendrogram structure TODO: check label=dendrogram
 
         if data is None or att is None:
             return
@@ -71,36 +72,30 @@ class DendrogramSelectionTool(object):
         # etc
         threshold = 1 + 10 ** (length / 0.1 - 1)
 
-        # data['structure'] is a mask of data for each pixel with dendrogram labels
-        # d['parent'] gives parent info of each branch
-        # -> d['parent'][2] = 5 means branch2 parent is branch 5
-        # -> d['parent'][5] = 7 means branch 5 parent is branch 7
-        # ...
         try:
-            branch_label = data['structure'][start_coord]  # return branch label on cursor pos
+            branch_label = data['structure'][start_coord]
         except IndexError:
             # if selection pos out of data range
             branch_label = -1
 
+        # no structure found
         if branch_label == -1:
             return None
 
-        # TODO: add dragging distance into threshold
-        # if threshold > 2:
-        #     parent check of d
-        #     branch = d['parent'][branch]
+        # find parent structure when dragging
+        while threshold/10. > 1:
+            threshold /= 10.
+            branch_label = d['parent'][branch_label]
 
-        # similar to DFS to find children 
+        # similar to DFS to find children
         def get_all_branch(d, branch_label, ini_mask):
             mask = np.logical_or(ini_mask, data['structure'] == branch_label)
-            print('d, branch_label, mask', d, branch_label, np.sum(mask))
             child_label = np.where(d['parent'] == branch_label)
 
             if len(child_label[0]) != 0:
                 for each_child in child_label[0]:
                     mask = get_all_branch(d, each_child, mask)
             return mask
-
 
         ini_mask = np.zeros(data['structure'].shape, dtype=bool)
         mask = get_all_branch(d, branch_label, ini_mask)
@@ -148,10 +143,9 @@ class DendrogramMode(MouseMode):
 
     def press(self, event):
         self._start_event = event
-        self._end_event = event # remove later
         super(DendrogramMode, self).press(event)
 
-    '''def move(self, event):
+    def move(self, event):
         self._end_event = event
         super(DendrogramMode, self).move(event)
 
@@ -159,4 +153,4 @@ class DendrogramMode(MouseMode):
         self._end_event = event
         super(DendrogramMode, self).release(event)
         self._start_event = None
-        self._end_event = None'''
+        self._end_event = None
