@@ -43,15 +43,14 @@ class DendrogramSelectionTool(object):
 
         data = self.widget.client.display_data
         att = self.widget.client.display_attribute
-
+        d = None
         for each_data in self.widget.client.data:
             if each_data.label == 'Dendrogram':
                 d = each_data
-            else:
-                # TODO: the tool icon doesn't show
-                return
+                # TODO: 1) the tool icon doesn't show if no dendrogram data
+                      # 2) more than one dendrogram data
 
-        if data is None or att is None:
+        if data is None or att is None or d is None:
             return
 
         if data.size > WARN_THRESH and not self.widget._confirm_large_image(data):
