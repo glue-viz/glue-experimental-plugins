@@ -2,7 +2,11 @@ import os
 import numpy as np
 
 from glue.viewers.common.qt.mouse_mode import MouseMode
-from glue.external.qt import QtGui
+
+try:
+    from glue.external.qt import QtGui
+except ImportError:
+    from qtpy import QtGui
 
 from .floodfill_scipy import floodfill_scipy
 

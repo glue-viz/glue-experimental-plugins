@@ -1,7 +1,12 @@
 import os
 
-from glue.external.qt import QtGui
-from glue.external.qt.QtCore import Qt
+try:
+    from glue.external.qt import QtGui
+    from glue.external.qt.QtCore import Qt
+except ImportError:
+    from qtpy import QtGui
+    from qtpy.QtCore import Qt
+
 from glue.utils.qt.helpers import load_ui
 
 from .vizier_helpers import query_vizier, fetch_vizier_catalog

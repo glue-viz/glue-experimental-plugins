@@ -2,7 +2,11 @@ import os
 
 from glue.viewers.common.qt.mouse_mode import MouseMode
 from glue.core import roi
-from glue.external.qt import QtGui
+
+try:
+    from glue.external.qt import QtGui
+except ImportError:
+    from qtpy import QtGui
 
 try:
     from glue.utils.matplotlib import point_contour
