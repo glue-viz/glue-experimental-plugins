@@ -1,6 +1,10 @@
 import os
 
-from glue.external.qt import QtGui, QtCore
+try:
+    from glue.external.qt import QtGui, QtCore
+except ImportError:
+    from qtpy import QtGui, QtCore
+
 from glue.utils.qt.helpers import load_ui
 
 from .webcam_helpers import Webcam, frame_to_data
