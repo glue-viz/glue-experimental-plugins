@@ -10,6 +10,7 @@ glue/tests/htmlcov
 doc/.eggs
 Glue.egg-info
 glueviz.egg-info
+glue_exp.egg-info
 dist
 
 # Compiled files
