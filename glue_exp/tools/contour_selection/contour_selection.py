@@ -63,7 +63,7 @@ class ContourMode(MouseMode):
         self.icon = QtGui.QIcon(os.path.join(ROOT, "glue_contour.png"))
         self.mode_id = 'Contour'
         self.action_text = 'Contour'
-        self.tool_tip = 'Define a region of intrest via contours'
+        self.tool_tip = 'Define a region of interest via contours'
         self.shortcut = 'N'
 
     def roi(self, data):
