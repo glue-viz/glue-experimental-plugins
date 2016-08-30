@@ -3,7 +3,7 @@ from mock import MagicMock, patch
 
 from glue.viewers.common.qt.tests.test_mouse_mode import TestMouseMode, Event
 
-from ..contour_selection import ContourMode, contour_to_roi
+from ..contour_selection import ContourSelectionTool, contour_to_roi
 
 from .. import contour_selection
 
@@ -18,7 +18,7 @@ else:
 class TestContourMode(TestMouseMode):
 
     def mode_factory(self):
-        return ContourMode
+        return ContourSelectionTool
 
     def test_roi_before_event(self):
         data = MagicMock()
