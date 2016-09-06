@@ -1,70 +1,47 @@
 import os
 
-from glue.viewers.common.qt.mouse_mode import MouseMode
+# NOTE: This is incompatible with glue < 0.9
+from glue.config import viewer_tool
+from glue.viewers.common.qt.tool import Tool
 
-try:
-    from glue.external.qt import QtGui
-except ImportError:
-    from qtpy import QtGui
 
-__all__ = ['ZoomButtonsTool']
+__all__ = ['ZoomInTool', 'ZoomOutTool']
 
 ROOT = os.path.dirname(__file__)
 
 
-class ZoomButtonsTool(object):
+@viewer_tool
+class ZoomInTool(Tool):
+    """Button to zoom in."""
 
-    def __init__(self, widget=None):
-        self.widget = widget
-
-    def _get_modes(self, axes):
-        self._zoomin = ZoomInMode(axes)
-        self._zoomout = ZoomOutMode(axes)
-        return [self._zoomin, self._zoomout]
-
-    def _display_data_hook(self, data):
-        pass
-
-    def close(self):
-        pass
-
-
-class ZoomInMode(MouseMode):
-    """Buttom to zoom in."""
+    icon = os.path.join(ROOT, 'glue_zoomin.png')
+    tool_id = 'Zoom In'
+    action_text = tool_id
+    tool_tip = tool_id
+    shortcut = '+'
 
     def __init__(self, *args, **kwargs):
-        super(ZoomInMode, self).__init__(*args, **kwargs)
-
-        self.icon = QtGui.QIcon(os.path.join(ROOT, 'glue_zoomin.png'))
-        self.mode_id = 'Zoom In'
-        self.action_text = 'Zoom In'
-        self.tool_tip = 'Zoom in'
-
-        # TODO: Pressing + should also zoom in.
-        self.shortcut = '+'
+        super(ZoomInTool, self).__init__(*args, **kwargs)
 
     def activate(self):
-        auto_zoom(self._axes, zoom_type='in')
-        # TODO: Need to auto deactivate after zoom.
+        auto_zoom(self.viewer.axes, zoom_type='in')
 
 
-class ZoomOutMode(MouseMode):
-    """Buttom to zoom out."""
+@viewer_tool
+class ZoomOutTool(Tool):
+    """Button to zoom out."""
+
+    icon = os.path.join(ROOT, 'glue_zoomout.png')
+    tool_id = 'Zoom Out'
+    action_text = tool_id
+    tool_tip = tool_id
+    shortcut = '-'
 
     def __init__(self, *args, **kwargs):
-        super(ZoomOutMode, self).__init__(*args, **kwargs)
-
-        self.icon = QtGui.QIcon(os.path.join(ROOT, 'glue_zoomout.png'))
-        self.mode_id = 'Zoom Out'
-        self.action_text = 'Zoom Out'
-        self.tool_tip = 'Zoom Out'
-
-        # TODO: Pressing - should also zoom out.
-        self.shortcut = '-'
+        super(ZoomOutTool, self).__init__(*args, **kwargs)
 
     def activate(self):
-        auto_zoom(self._axes, zoom_type='out')
-        # TODO: Need to auto deactivate after zoom.
+        auto_zoom(self.viewer.axes, zoom_type='out')
 
 
 # Adapted from https://gist.github.com/tacaswell/3144287
