@@ -1,13 +1,10 @@
 import os
 
-try:
-    from glue.external.qt import QtGui
-    from glue.external.qt.QtCore import Qt
-except ImportError:
-    from qtpy import QtGui
-    from qtpy.QtCore import Qt
+from qtpy import QtWidgets
+from qtpy.QtCore import Qt
 
 from glue.utils.qt.helpers import load_ui
+from glue.utils.qt import get_qapp
 
 from .vizier_helpers import query_vizier, fetch_vizier_catalog
 
@@ -16,7 +13,7 @@ __all__ = ["QtVizierImporter"]
 UI_MAIN = os.path.join(os.path.dirname(__file__), 'vizier.ui')
 
 
-class QtVizierImporter(QtGui.QDialog):
+class QtVizierImporter(QtWidgets.QDialog):
 
     def __init__(self):
 
@@ -45,19 +42,21 @@ class QtVizierImporter(QtGui.QDialog):
 
         self.search_button.setEnabled(False)
         self.search_button.setText("Searching")
-        QtGui.qApp.processEvents()
+
+        app = get_qapp()
+        app.processEvents()
 
         self.clear()
 
         results = query_vizier(self.query.text())
 
         for catalog_set in results:
-            main = QtGui.QTreeWidgetItem(self.tree.invisibleRootItem(),
-                                         [catalog_set['description'], ""])
+            main = QtWidgets.QTreeWidgetItem(self.tree.invisibleRootItem(),
+                                             [catalog_set['description'], ""])
             main.setFlags(main.flags() | Qt.ItemIsTristate)
             main.setCheckState(2, Qt.Unchecked)
             for catalog in catalog_set['tables']:
-                sub = QtGui.QTreeWidgetItem(main)
+                sub = QtWidgets.QTreeWidgetItem(main)
                 sub.setFlags(sub.flags() | Qt.ItemIsUserCheckable)
                 sub.setCheckState(2, Qt.Unchecked)
                 sub.setText(0, catalog['description'])
@@ -86,7 +85,10 @@ class QtVizierImporter(QtGui.QDialog):
         for iname, name in enumerate(retrieve):
 
             self.progress.setValue(iname / float(len(retrieve)) * 100.)
-            QtGui.qApp.processEvents()  # update progress bar
+
+            # update progress bar
+            app = get_qapp()
+            app.processEvents()
 
             self.datasets.append(fetch_vizier_catalog(name))
 
