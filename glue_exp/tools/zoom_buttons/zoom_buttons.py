@@ -1,6 +1,5 @@
 import os
 
-# NOTE: This is incompatible with glue < 0.9
 from glue.config import viewer_tool
 from glue.viewers.common.qt.tool import Tool
 
