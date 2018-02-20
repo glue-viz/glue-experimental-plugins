@@ -2,7 +2,11 @@ import os
 
 from qtpy.QtWidgets import QMessageBox
 
-from glue.viewers.common.qt.mouse_mode import MouseMode
+try:
+    from glue.viewers.common.qt.toolbar_mode import ToolbarModeBase
+except ImportError:
+    from glue.viewers.common.qt.mouse_mode import MouseMode as ToolbarModeBase
+
 from glue.core import roi, Data
 from glue.utils.matplotlib import point_contour
 from glue.config import viewer_tool
@@ -15,7 +19,7 @@ WARN_THRESH = 10000000  # warn when contouring large images
 
 
 @viewer_tool
-class ContourSelectionTool(MouseMode):
+class ContourSelectionTool(ToolbarModeBase):
     """
     Creates ROIs by using the mouse to 'pick' contours out of the data
     """

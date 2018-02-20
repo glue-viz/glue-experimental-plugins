@@ -4,7 +4,12 @@ import numpy as np
 from qtpy.QtWidgets import QMessageBox
 
 from glue.core import Data
-from glue.viewers.common.qt.mouse_mode import MouseMode
+
+try:
+    from glue.viewers.common.qt.toolbar_mode import ToolbarModeBase
+except ImportError:
+    from glue.viewers.common.qt.mouse_mode import MouseMode as ToolbarModeBase
+
 from glue.core.edit_subset_mode import EditSubsetMode
 from glue.core.subset import MaskSubsetState
 
@@ -20,7 +25,7 @@ WARN_THRESH = 4000000  # warn when floodfilling large images
 
 
 @viewer_tool
-class FloodfillSelectionTool(MouseMode):
+class FloodfillSelectionTool(ToolbarModeBase):
     """
     Creates selection by using the mouse to pick regions using the flood fill
     algorithm: https://en.wikipedia.org/wiki/Flood_fill
