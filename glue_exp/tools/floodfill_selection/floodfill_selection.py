@@ -155,5 +155,8 @@ class FloodfillSelectionTool(ToolbarModeBase):
         if mask is not None:
             cids = data.pixel_component_ids
             subset_state = MaskSubsetState(mask, cids)
-            mode = EditSubsetMode()
+            try:
+                mode = self.viewer.session.edit_subset_mode
+            except AttributeError:
+                mode = EditSubsetMode()
             mode.update(data, subset_state, focus_data=data)
