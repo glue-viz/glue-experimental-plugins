@@ -5,10 +5,7 @@ from qtpy.QtWidgets import QMessageBox
 
 from glue.core import Data
 
-try:
-    from glue.viewers.common.qt.toolbar_mode import ToolbarModeBase
-except ImportError:
-    from glue.viewers.common.qt.mouse_mode import MouseMode as ToolbarModeBase
+from glue.viewers.matplotlib.qt.toolbar_mode import ToolbarModeBase
 
 from glue.core.edit_subset_mode import EditSubsetMode
 from glue.core.subset import MaskSubsetState

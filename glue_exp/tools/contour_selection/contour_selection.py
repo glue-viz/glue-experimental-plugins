@@ -2,10 +2,7 @@ import os
 
 from qtpy.QtWidgets import QMessageBox
 
-try:
-    from glue.viewers.common.qt.toolbar_mode import ToolbarModeBase
-except ImportError:
-    from glue.viewers.common.qt.mouse_mode import MouseMode as ToolbarModeBase
+from glue.viewers.matplotlib.qt.toolbar_mode import ToolbarModeBase
 
 from glue.core import roi, Data
 from glue.utils.matplotlib import point_contour
