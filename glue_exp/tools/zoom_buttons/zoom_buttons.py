@@ -1,7 +1,7 @@
 import os
 
 from glue.config import viewer_tool
-from glue.viewers.common.qt.tool import Tool
+from glue.viewers.common.tool import Tool
 
 
 __all__ = ['ZoomInTool', 'ZoomOutTool']
