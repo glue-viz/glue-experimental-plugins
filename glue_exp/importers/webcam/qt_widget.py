@@ -64,11 +64,11 @@ class WebcamView(QtGui.QWidget):
         painter = QtGui.QPainter(self)
         painter.drawImage(QtCore.QRect(xmin, ymin, width, height), self._image)
 
-
     def _update_image(self):
         if not self._frozen:
             frame = self._webcam.capture_frame()
-            self._image = QtGui.QImage(frame.tostring(), frame.shape[1], frame.shape[0], QtGui.QImage.Format_RGB888).rgbSwapped()
+            self._image = QtGui.QImage(frame.tostring(), frame.shape[1],
+                                       frame.shape[0], QtGui.QImage.Format_RGB888).rgbSwapped()
             self._data = frame_to_data(frame)
             self.update()
 
