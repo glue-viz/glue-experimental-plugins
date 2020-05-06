@@ -1,8 +1,9 @@
 from io import BytesIO
 
 import requests
-from astropy.io.votable import parse, parse_single_table
+from astropy.io.votable import parse
 from glue.core.data_factories import astropy_tabular_data
+
 
 def query_vizier(query_text):
 
@@ -35,5 +36,3 @@ def fetch_vizier_catalog(catalog_name):
     table = astropy_tabular_data(BytesIO(r.content), format='votable')
     table.label = catalog_name
     return table
-
-

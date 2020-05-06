@@ -29,7 +29,8 @@ class QtVizierImporter(QtWidgets.QDialog):
         # text disappears straight away.
         self.search_button.setFocus()
 
-        self.query.setPlaceholderText("Enter a search term here to search for authors, titles, descriptions, etc.")
+        self.query.setPlaceholderText("Enter a search term here to search for "
+                                      "authors, titles, descriptions, etc.")
 
         self._checkboxes = {}
         self.datasets = []
@@ -70,7 +71,6 @@ class QtVizierImporter(QtWidgets.QDialog):
 
         self.search_button.setEnabled(True)
         self.search_button.setText("Search")
-
 
     def finalize(self):
 

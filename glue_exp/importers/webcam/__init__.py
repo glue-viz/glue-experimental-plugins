@@ -5,7 +5,7 @@ def setup():
 
     from glue.logger import logger
     try:
-        import cv2
+        import cv2  # noqa
     except ImportError:
         logger.info("Could not load webcam importer plugin, since OpenCV is required")
         return
