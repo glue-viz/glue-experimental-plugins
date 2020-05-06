@@ -1,6 +1,10 @@
 import numpy as np
 from mock import MagicMock, patch
 
+from glue.core import Data
+from glue.viewers.image.qt import ImageViewer
+from glue.app.qt import GlueApplication
+
 from glue.viewers.matplotlib.tests.test_mouse_mode import TestMouseMode, Event
 
 from ..contour_selection import ContourSelectionTool, contour_to_roi
@@ -8,7 +12,7 @@ from ..contour_selection import ContourSelectionTool, contour_to_roi
 from .. import contour_selection
 
 try:
-    from glue.utils.matplotlib import point_contour
+    from glue.utils.matplotlib import point_contour  # noqa
 except ImportError:  # glue < 0.5
     point_contour_path = 'glue.core.util.point_contour'
 else:
@@ -49,3 +53,21 @@ class TestContourToRoi(object):
     # def test_roi_null_result(self):
     #     p = contour_to_roi(0, 1, np.zeros((2,2)))
     #     assert p is None
+
+
+def test_activate_tool():
+
+    # Regression test for missing icon files
+
+    image = Data(label='image', x=np.random.random((10, 20)))
+    application = GlueApplication()
+    application.data_collection.append(image)
+    viewer = application.new_data_viewer(ImageViewer)
+    viewer.add_data(image)
+
+    viewer.toolbar.active_tool = 'contour_selection'
+
+    viewer.close(warn=False)
+    viewer = None
+    application.close()
+    application = None

@@ -22,7 +22,7 @@ class ContourSelectionTool(ToolbarModeBase):
     """
 
     icon = os.path.join(ROOT, "glue_contour.png")
-    tool_id = 'Contour selection'
+    tool_id = 'contour_selection'
     action_text = 'Contour'
     tool_tip = 'Define a region of interest via contours'
     status_tip = ('Click on any pixel to select all pixels inside the '
